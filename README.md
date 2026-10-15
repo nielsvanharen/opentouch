@@ -48,12 +48,13 @@ Tried another device? Please open an issue or a pull request so it can be added 
 
 ## Install
 
-1. Download `OpenTouch.app` from [Releases](https://github.com/nielsvanharen/opentouch/releases), or build it
-   yourself (see below), and move it to `/Applications`.
-2. Open it. A hand icon appears in the menu bar.
-3. Grant **Accessibility** when asked (System Settings → Privacy & Security → Accessibility).
-   OpenTouch needs this to click and scroll for you.
-4. If macOS also asks for **Input Monitoring**, allow that too.
+1. Download the latest `OpenTouch-….zip` from [Releases](https://github.com/nielsvanharen/opentouch/releases),
+   or build it yourself (see below). Unzip it and move `OpenTouch.app` to `/Applications`.
+2. Open it. The release isn't notarized by Apple, so the first time macOS blocks it. Go to
+   **System Settings → Privacy & Security** and click **Open Anyway**. A hand icon appears in the menu bar.
+3. Allow **Input Monitoring** (to read the touch screen) and **Accessibility** (to click, scroll
+   and type for you) when macOS asks, under System Settings → Privacy & Security.
+4. Quit and reopen OpenTouch when macOS asks; a permission only takes effect after a restart.
 5. Touch the screen.
 
 If touches land on the wrong monitor, choose the right one under
