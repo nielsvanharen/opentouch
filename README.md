@@ -24,6 +24,11 @@ Apple's public HID API and posts regular macOS input events.
 | Pen with barrel button | Right click |
 | Pen eraser end / eraser button | Eraser tool in apps that support it |
 
+**Pop-up keyboard.** Tap a text field on the touch screen and an on-screen keyboard slides up
+on that display. It hides again when you tap something that isn't a text field. Typing on a
+physical keyboard never opens it. Turn it off with **menu bar icon → Pop-up Keyboard for Text
+Fields**, or open it by hand with **Show Keyboard**.
+
 Touches are ignored while the pen is near the screen, so your palm doesn't click things
 while you write.
 
@@ -105,6 +110,8 @@ USB touch panel ──HID reports──▶ HIDService ──▶ DigitizerDecoder
   press, scroll, or pen stroke.
 - **`DisplayMapper`** maps panel coordinates onto the right display, taking rotation into account.
 - **`EventPoster`** posts mouse, scroll and tablet events with `CGEvent`.
+- **`TouchKeyboard`** uses the Accessibility API to see whether a tap focused a text field, and
+  shows a keyboard panel that types without taking focus away from the app.
 
 The `OpenTouchCore` module has no macOS dependencies and is covered by unit tests.
 
