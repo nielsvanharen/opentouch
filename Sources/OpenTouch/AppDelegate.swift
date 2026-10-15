@@ -12,7 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         defaults.register(defaults: [
             "enabled": true, "palmRejection": true, "longPressRightClick": true,
-            "twoFingerTapRightClick": true, "momentumScrolling": true,
+            "twoFingerTapRightClick": true, "momentumScrolling": true, "popupKeyboard": true,
         ])
         applyDefaults()
 
@@ -35,6 +35,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func applyDefaults() {
         controller.enabled = defaults.bool(forKey: "enabled")
         controller.palmRejection = defaults.bool(forKey: "palmRejection")
+        controller.keyboard.autoShow = defaults.bool(forKey: "popupKeyboard")
+        if !controller.keyboard.autoShow && controller.keyboard.isVisible { controller.keyboard.hide() }
         var s = controller.settings
         s.longPressRightClick = defaults.bool(forKey: "longPressRightClick")
         s.twoFingerTapRightClick = defaults.bool(forKey: "twoFingerTapRightClick")
@@ -99,6 +101,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         gestureItem.submenu = gestures
         menu.addItem(gestureItem)
 
+        menu.addItem(toggle: "Pop-up Keyboard for Text Fields", key: "popupKeyboard", target: self)
+        menu.addItem(action: controller.keyboard.isVisible ? "Hide Keyboard" : "Show Keyboard",
+                     #selector(toggleKeyboard), target: self)
+
         menu.addItem(.separator())
         let login = menu.addItem(action: "Open at Login", #selector(toggleLogin(_:)), target: self)
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -112,6 +118,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         defaults.set(!defaults.bool(forKey: key), forKey: key)
         applyDefaults()
         updateIcon()
+    }
+
+    @objc func toggleKeyboard() {
+        controller.keyboard.toggle()
     }
 
     @objc func chooseDisplay(_ sender: NSMenuItem) {

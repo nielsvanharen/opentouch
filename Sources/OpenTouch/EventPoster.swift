@@ -4,6 +4,8 @@ import OpenTouchCore
 /// Turns gestures into synthetic mouse, scroll and tablet events.
 /// Posting requires the Accessibility permission.
 final class EventPoster: PointerSink {
+    /// Called after a left click is released, e.g. to check whether a text field was tapped.
+    var onClick: (() -> Void)?
     private let source = CGEventSource(stateID: .hidSystemState)
     private var scrollRemainder = (x: 0.0, y: 0.0)
 
@@ -25,6 +27,7 @@ final class EventPoster: PointerSink {
         case (.right, false): type = .rightMouseUp
         }
         post(type, at: point, button: button == .left ? .left : .right, clickCount: clickCount, pen: pen)
+        if type == .leftMouseUp { onClick?() }
     }
 
     func drag(_ button: MouseButton, to point: Point, pen: PenState?) {

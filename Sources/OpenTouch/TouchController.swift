@@ -10,6 +10,10 @@ final class TouchController {
     private lazy var pen = PenTracker(sink: poster)
     private var tickTimer: Timer?
     private var lastPenActivity = -Double.infinity
+    private(set) lazy var keyboard = TouchKeyboard(mapper: mapper)
+    /// Contacts that started on the on-screen keyboard; they type instead of driving gestures.
+    private var keyboardContacts = Set<Int>()
+    private var knownContacts = Set<Int>()
 
     var enabled = true {
         didSet { if !enabled { touch.cancel(); pen.cancel() } }
@@ -25,6 +29,7 @@ final class TouchController {
     init(seize: Bool = true) {
         hid = HIDService(seize: seize)
         hid.onEvent = { [weak self] event, _ in self?.handle(event) }
+        poster.onClick = { [weak self] in self?.keyboard.pointerClicked() }
     }
 
     func start() { hid.start() }
@@ -45,9 +50,23 @@ final class TouchController {
             let mapped = contacts.filter(\.touching).compactMap { c in
                 mapper.map(x: c.x, y: c.y).map { (id: c.id, point: $0) }
             }
-            touch.process(mapped, now: now)
+            touch.process(routeKeyboardContacts(mapped), now: now)
             updateTickTimer()
         }
+    }
+
+    /// Sends new contacts that land on the keyboard to it and returns the rest.
+    private func routeKeyboardContacts(_ contacts: [(id: Int, point: Point)]) -> [(id: Int, point: Point)] {
+        let ids = Set(contacts.map(\.id))
+        for id in keyboardContacts.subtracting(ids) { keyboard.touchUp(contact: id) }
+        keyboardContacts.formIntersection(ids)
+
+        for c in contacts where !knownContacts.contains(c.id) && keyboard.contains(c.point) {
+            keyboardContacts.insert(c.id)
+            keyboard.touchDown(contact: c.id, at: c.point)
+        }
+        knownContacts = ids
+        return contacts.filter { !keyboardContacts.contains($0.id) }
     }
 
     private func updateTickTimer() {
