@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: swift test
+      - name: Build app
+        run: UNIVERSAL=1 scripts/build-app.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OpenTouch.app
+          path: build/OpenTouch.app
