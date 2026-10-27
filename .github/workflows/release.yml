@@ -19,11 +19,13 @@ jobs:
       - name: Build app
         run: UNIVERSAL=1 scripts/build-app.sh
       - name: Package
-        run: ditto -c -k --keepParent build/OpenTouch.app "OpenTouch-$GITHUB_REF_NAME.zip"
+        run: |
+          scripts/make-dmg.sh "OpenTouch-$GITHUB_REF_NAME.dmg"
+          ditto -c -k --keepParent build/OpenTouch.app "OpenTouch-$GITHUB_REF_NAME.zip"
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "OpenTouch-$GITHUB_REF_NAME.zip" \
+          gh release create "$GITHUB_REF_NAME" "OpenTouch-$GITHUB_REF_NAME.dmg" "OpenTouch-$GITHUB_REF_NAME.zip" \
             --title "OpenTouch $GITHUB_REF_NAME" --generate-notes \
-            --notes "Unzip, move OpenTouch.app to /Applications and open it. This build is not notarized by Apple, so the first time macOS blocks it: go to System Settings → Privacy & Security and click **Open Anyway**. See the README for the permissions it needs."
+            --notes "Open the .dmg, drag OpenTouch to Applications and open it. It starts automatically at login from then on. This build is not notarized by Apple, so the first time macOS blocks it: go to System Settings → Privacy & Security and click **Open Anyway**. See the README for the permissions it needs."

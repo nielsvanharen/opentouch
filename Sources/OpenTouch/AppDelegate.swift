@@ -29,7 +29,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         controller.start()
 
         if !AXIsProcessTrusted() { promptForAccessibility() }
+        enableOpenAtLoginOnFirstInstall()
         updateIcon()
+    }
+
+    /// A touch screen should work right after logging in, so the first launch from
+    /// /Applications turns on Open at Login. Turning it off in the menu sticks.
+    private func enableOpenAtLoginOnFirstInstall() {
+        guard Bundle.main.bundlePath.hasPrefix("/Applications/"),
+              !defaults.bool(forKey: "loginItemConfigured") else { return }
+        defaults.set(true, forKey: "loginItemConfigured")
+        do {
+            try SMAppService.mainApp.register()
+        } catch {
+            Log.info("Open at Login failed: \(error.localizedDescription)")
+        }
     }
 
     private func applyDefaults() {
